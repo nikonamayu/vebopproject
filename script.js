@@ -1,4 +1,4 @@
-const API_KEY = 'AIzaSyA5_xd78skq-lOO4hRu-EL9ItydWSHAi1E';  // あなたのAPIキー
+const API_KEY = 'AIzaSyA5_xd78skq-lOO4hRu-EL9ItydWSHAi1E';
 const CHANNEL_IDS = [
     'UCIOUnOw74BcQZzskbjK3f8w',
     'UCAflRAT6B_7nvxAK72ztN3A',
@@ -15,31 +15,61 @@ const CHANNEL_IDS = [
     'UCV5jFxqHWDppyzznOBJbvVg'
 ];
 
+// チャンネルからの動画を取得
 async function fetchChannelVideos(channelId) {
     const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&eventType=upcoming&type=video&key=${API_KEY}`);
     const data = await response.json();
     return data.items;
 }
 
-async function displayUpcomingVideos() {
-    const scheduleDiv = document.getElementById('schedule');
-    
-    for (let channelId of CHANNEL_IDS) {
-        const videos = await fetchChannelVideos(channelId);
-        if (videos.length > 0) {
-            videos.forEach(video => {
-                const videoElement = document.createElement('div');
-                videoElement.innerHTML = `
-                    <h3>${video.snippet.title}</h3>
-                    <p>配信予定日時: ${new Date(video.snippet.publishedAt).toLocaleString()}</p>
-                    <p>チャンネル: ${video.snippet.channelTitle}</p>
-                    <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank">視聴ページへ</a>
-                    <hr>
-                `;
-                scheduleDiv.appendChild(videoElement);
-            });
-        }
-    }
+// YouTubeサムネイルURLを生成する関数
+function getThumbnailUrl(videoId) {
+    return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 }
 
-displayUpcomingVideos();
+// 配信予定を時間で並び替え
+function sortEventsByDate(events) {
+    return events.sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+// 配信予定をHTMLに追加
+function displayEvents(events) {
+    const scheduleDiv = document.getElementById('schedule');
+    scheduleDiv.innerHTML = ''; // 既存のコンテンツをクリア
+
+    events.forEach(event => {
+        const videoId = event.url.split('v=')[1]; // URLから動画IDを抽出
+        const thumbnailUrl = getThumbnailUrl(videoId);
+
+        const eventDiv = document.createElement('div');
+        eventDiv.classList.add('event');
+        eventDiv.innerHTML = `
+            <a href="${event.url}" target="_blank">
+                <img src="${thumbnailUrl}" alt="${event.title}" style="width: 320px; height: auto;">
+                <h2>${event.title}</h2>
+                <p>${new Date(event.date).toLocaleString()}</p>
+            </a>
+        `;
+        scheduleDiv.appendChild(eventDiv);
+    });
+}
+
+// メインの処理
+async function main() {
+    const events = [];
+    for (let channelId of CHANNEL_IDS) {
+        const videos = await fetchChannelVideos(channelId);
+        videos.forEach(video => {
+            events.push({
+                title: video.snippet.title,
+                date: video.snippet.publishedAt,
+                url: `https://www.youtube.com/watch?v=${video.id.videoId}`
+            });
+        });
+    }
+    const sortedEvents = sortEventsByDate(events);
+    displayEvents(sortedEvents);
+}
+
+// ページが読み込まれたときに実行
+window.onload = main;
