@@ -1,4 +1,4 @@
-const API_KEY = 'AIzaSyC6v0Fgczo7cYiBUtImIClh76hXgLuZmR4';  // 新しいAPIキー
+const API_KEY = 'AIzaSyAAya5zWu5WyhMfGuzBhcpPNKmhlsWjBi4';  // 新しいAPIキー
 const CHANNEL_IDS = [
     'UCIOUnOw74BcQZzskbjK3f8w',
     'UCAflRAT6B_7nvxAK72ztN3A',
@@ -17,9 +17,15 @@ const CHANNEL_IDS = [
 
 async function fetchChannelVideos(channelId) {
     try {
-        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&key=${API_KEY}`);
+        const now = new Date();
+        const oneDayAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000)); // 過去24時間
+        const nowISOString = now.toISOString();
+        const oneDayAgoISOString = oneDayAgo.toISOString();
+
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&publishedAfter=${oneDayAgoISOString}&key=${API_KEY}`);
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+            const errorDetails = await response.text();
+            throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}. Details: ${errorDetails}`);
         }
         const data = await response.json();
         return data.items;
@@ -29,83 +35,70 @@ async function fetchChannelVideos(channelId) {
     }
 }
 
-async function fetchVideoDetails(videoId) {
-    try {
-        const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=liveBroadcastDetails,snippet&id=${videoId}&key=${API_KEY}`);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
+async function displayUpcomingVideos() {
+    const scheduleDiv = document.getElementById('schedule');
+    const now = new Date();
+
+    for (let channelId of CHANNEL_IDS) {
+        const videos = await fetchChannelVideos(channelId);
+        if (videos.length > 0) {
+            videos.forEach(video => {
+                const videoDate = new Date(video.snippet.publishedAt);
+                // Check if the video is scheduled for the future or within the past 24 hours
+                if (videoDate > now || videoDate > now - (24 * 60 * 60 * 1000)) {
+                    const videoElement = document.createElement('div');
+                    videoElement.innerHTML = `
+                        <h3>${video.snippet.title}</h3>
+                        <p>配信予定日時: ${videoDate.toLocaleString()}</p>
+                        <p>チャンネル: ${video.snippet.channelTitle}</p>
+                        <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank">視聴ページへ</a>
+                        <hr>
+                    `;
+                    scheduleDiv.appendChild(videoElement);
+                }
+            });
         }
-        const data = await response.json();
-        return data.items[0];
-    } catch (error) {
-        console.error('Error fetching video details:', error);
-        return {};
     }
 }
 
+// YouTubeサムネイルURLを生成する関数
 function getThumbnailUrl(videoId) {
     return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 }
 
+// 配信予定を時間で並び替え
 function sortEventsByDate(events) {
     return events.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
-async function displayEvents(events) {
+// 配信予定をHTMLに追加
+function displayEvents(events) {
     const scheduleDiv = document.getElementById('schedule');
-    scheduleDiv.innerHTML = '';
+    scheduleDiv.innerHTML = ''; // 既存のコンテンツをクリア
 
-    for (const event of events) {
-        const videoId = event.url.split('v=')[1];
-        try {
-            const videoDetails = await fetchVideoDetails(videoId);
-            const startTime = videoDetails.liveBroadcastDetails ? videoDetails.liveBroadcastDetails.scheduledStartTime : event.date;
-            const thumbnailUrl = getThumbnailUrl(videoId);
+    events.forEach(event => {
+        const videoId = event.url.split('v=')[1]; // URLから動画IDを抽出
+        const thumbnailUrl = getThumbnailUrl(videoId);
 
-            const eventDiv = document.createElement('div');
-            eventDiv.classList.add('event');
-            eventDiv.innerHTML = `
-                <a href="${event.url}" target="_blank">
-                    <img src="${thumbnailUrl}" alt="${event.title}" style="width: 320px; height: auto;">
-                    <h2>${event.title}</h2>
-                    <p>${new Date(startTime).toLocaleString()}</p>
-                </a>
-            `;
-            scheduleDiv.appendChild(eventDiv);
-        } catch (error) {
-            console.error('Error displaying event:', error);
-        }
-    }
+        const eventDiv = document.createElement('div');
+        eventDiv.classList.add('event');
+        eventDiv.innerHTML = `
+            <a href="${event.url}" target="_blank">
+                <img src="${thumbnailUrl}" alt="${event.title}" style="width: 320px; height: auto;">
+                <h2>${event.title}</h2>
+                <p>${new Date(event.date).toLocaleString()}</p>
+            </a>
+        `;
+        scheduleDiv.appendChild(eventDiv);
+    });
 }
 
+// メインの処理
 async function main() {
-    const events = [];
-    for (let channelId of CHANNEL_IDS) {
-        const videos = await fetchChannelVideos(channelId);
-        if (videos) {
-            for (const video of videos) {
-                const videoId = video.id.videoId;
-                events.push({
-                    title: video.snippet.title,
-                    date: video.snippet.publishedAt,
-                    url: `https://www.youtube.com/watch?v=${videoId}`
-                });
-            }
-        }
-    }
-
-    for (const event of events) {
-        const videoId = event.url.split('v=')[1];
-        try {
-            const videoDetails = await fetchVideoDetails(videoId);
-            event.date = videoDetails.liveBroadcastDetails ? videoDetails.liveBroadcastDetails.scheduledStartTime : event.date;
-        } catch (error) {
-            console.error('Error updating event date:', error);
-        }
-    }
-
+    const events = await fetchEventData();
     const sortedEvents = sortEventsByDate(events);
     displayEvents(sortedEvents);
 }
 
-window.onload = main;
+// ページが読み込まれたときに実行
+window.onload = displayUpcomingVideos;
