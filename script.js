@@ -1,4 +1,4 @@
-const API_KEY = 'AIzaSyAAya5zWu5WyhMfGuzBhcpPNKmhlsWjBi4';  // 新しいAPIキー
+const API_KEY = 'AIzaSyD9if3vrCwwj3SAtSt4wSybkBrgQMzZ94g';  // 新しいAPIキー
 const CHANNEL_IDS = [
     'UCIOUnOw74BcQZzskbjK3f8w',
     'UCAflRAT6B_7nvxAK72ztN3A',
