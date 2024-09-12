@@ -25,11 +25,15 @@ const past24Hours = new Date(now.getTime() - (HOURS_BEFORE * 60 * 60 * 1000)).to
 async function fetchChannelVideos(channelId) {
     try {
         const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&publishedAfter=${past24Hours}&key=${API_KEY}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         console.log('Channel Videos Data:', data); // デバッグ用
         return data.items;
     } catch (error) {
         console.error('Error fetching channel videos:', error);
+        return [];
     }
 }
 
@@ -37,11 +41,15 @@ async function fetchChannelVideos(channelId) {
 async function fetchVideoDetails(videoId) {
     try {
         const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=liveBroadcastDetails,snippet&id=${videoId}&key=${API_KEY}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         console.log('Video Details Data:', data); // デバッグ用
         return data.items[0];
     } catch (error) {
         console.error('Error fetching video details:', error);
+        return {};
     }
 }
 
