@@ -1,4 +1,4 @@
-const API_KEY = 'AIzaSyA5_xd78skq-lOO4hRu-EL9ItydWSHAi1E';  // あなたのAPIキー
+const API_KEY = 'AIzaSyC6v0Fgczo7cYiBUtImIClh76hXgLuZmR4';  // 新しいAPIキー
 const CHANNEL_IDS = [
     'UCIOUnOw74BcQZzskbjK3f8w',
     'UCAflRAT6B_7nvxAK72ztN3A',
@@ -23,7 +23,7 @@ async function fetchChannelVideos(channelId) {
     try {
         const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&publishedAfter=${past24Hours}&key=${API_KEY}`);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
         }
         const data = await response.json();
         return data.items;
@@ -37,7 +37,7 @@ async function fetchVideoDetails(videoId) {
     try {
         const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=liveBroadcastDetails,snippet&id=${videoId}&key=${API_KEY}`);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
         }
         const data = await response.json();
         return data.items[0];
