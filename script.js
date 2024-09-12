@@ -15,13 +15,9 @@ const CHANNEL_IDS = [
     'UCV5jFxqHWDppyzznOBJbvVg'
 ];
 
-const HOURS_BEFORE = 24;
-const now = new Date();
-const past24Hours = new Date(now.getTime() - (HOURS_BEFORE * 60 * 60 * 1000)).toISOString();
-
 async function fetchChannelVideos(channelId) {
     try {
-        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&publishedAfter=${past24Hours}&key=${API_KEY}`);
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&key=${API_KEY}`);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}`);
         }
