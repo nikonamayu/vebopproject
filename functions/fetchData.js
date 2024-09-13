@@ -3,20 +3,22 @@ const fetch = require('node-fetch');
 exports.handler = async function(event, context) {
   const API_KEY = process.env.API_KEY; // 環境変数からAPIキーを取得
   const CHANNEL_IDS = [
-    'UCIOUnOw74BcQZzskbjK3f8w',
-    'UCAflRAT6B_7nvxAK72ztN3A',
-    'UCQjIXLk6lridUCQIBHaLMDw',
-    'UCUuXWtrg4-1kGa3f7WEWzuA',
-    'UCNwjdfFJVqQ9-qi1lwn4olw',
-    'UCBxgYX7hJy6TZVvLXOEQrWw',
-    'UCvCks1oVZfBuG1VXicOr5aw',
-    'UCBT07kDimH3-HJ9zq1rFQKg',
-    'UCfvCFbU56UWX9ML0sOr9_iQ',
-    'UCY85ViSyTU5Wy_bwsUVjkdA',
-    'UCRsgVmJAknvkTjoz2miNG5w',
-    'UCBvGU2rqWy2jiIeDBScdw1g',
-    'UCV5jFxqHWDppyzznOBJbvVg'
-  ];
+'UCAflRAT6B_7nvxAK72ztN3A',
+'UCUuXWtrg4-1kGa3f7WEWzuA',
+'UCIOUnOw74BcQZzskbjK3f8w',
+'UCQjIXLk6lridUCQIBHaLMDw',
+'UCNwjdfFJVqQ9-qi1lwn4olw',
+'UCvCks1oVZfBuG1VXicOr5aw',
+'UCBxgYX7hJy6TZVvLXOEQrWw',
+'UCY85ViSyTU5Wy_bwsUVjkdA',
+'UC_wo1VD3xVl4Y_J15Wxm2ig',
+'UCBT07kDimH3-HJ9zq1rFQKg',
+'UCfvCFbU56UWX9ML0sOr9_iQ',
+'UCV1is8yPGubl7J7vG7K45Hg',
+'UCBvGU2rqWy2jiIeDBScdw1g',
+'UCRsgVmJAknvkTjoz2miNG5w',
+'UCV5jFxqHWDppyzznOBJbvVg',
+];
 
   const fetchChannelVideos = async (channelId) => {
     try {
