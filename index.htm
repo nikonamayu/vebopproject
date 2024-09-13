@@ -1,11 +1,79 @@
 <!DOCTYPE html>
-<html lang="ja"> <!-- 日本語を指定 -->
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>配信予定</title>
+    <title>ビバプロ配信予定</title>
     <style>
-        /* CSSスタイルをここに追加 */
+        /* 全体のスタイル設定 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-top: 20px;
+            font-size: 2.5rem;
+        }
+
+        /* 配信予定のセクション */
+        #schedule {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #schedule div {
+            margin-bottom: 20px;
+        }
+
+        #schedule h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #1a73e8;
+        }
+
+        #schedule p {
+            margin: 5px 0;
+            font-size: 1rem;
+            color: #555;
+        }
+
+        #schedule a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        #schedule a:hover {
+            text-decoration: underline;
+        }
+
+        /* スマートフォン用のレスポンシブデザイン */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            #schedule {
+                padding: 10px;
+            }
+
+            #schedule h3 {
+                font-size: 1.25rem;
+            }
+
+            #schedule p {
+                font-size: 0.875rem;
+            }
+        }
     </style>
 </head>
 <body>
